@@ -1,1 +1,16 @@
 [
+{
+  "directory": "d:\\Dev\\HLMMO-Server",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/std:c++20", "/I.", "/Iinclude", "/EHsc", "/Fobuild\\.objs\\HLMMOServer\\windows\\x64\\release\\main.cpp.obj", "main.cpp", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\cppwinrt", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\shared", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\ucrt", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\um", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\winrt", "-imsvc", "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\include"],
+  "file": "main.cpp"
+},
+{
+  "directory": "d:\\Dev\\HLMMO-Server",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/std:c++20", "/I.", "/Iinclude", "/EHsc", "/Fobuild\\.objs\\HLMMOServer\\windows\\x64\\release\\src\\Core.cpp.obj", "src\\Core.cpp", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\cppwinrt", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\shared", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\ucrt", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\um", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\winrt", "-imsvc", "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\include"],
+  "file": "src\\Core.cpp"
+},
+{
+  "directory": "d:\\Dev\\HLMMO-Server",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/std:c++20", "/I.", "/Iinclude", "/EHsc", "/Fobuild\\.objs\\HLMMOServer\\windows\\x64\\release\\src\\NetworkManager.cpp.obj", "src\\NetworkManager.cpp", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\cppwinrt", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\shared", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\ucrt", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\um", "-imsvc", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22000.0\\winrt", "-imsvc", "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\include"],
+  "file": "src\\NetworkManager.cpp"
+}]
