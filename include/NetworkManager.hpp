@@ -10,9 +10,7 @@
 #include <chrono>
 #include <assert.h>
 
-extern bool g_bQuit;
 
-extern SteamNetworkingMicroseconds g_logTimeZero;
 
 class NetworkManager
 {
@@ -47,7 +45,7 @@ public:
         char *nl = strchr(text, '\0') - 1;
         if (nl >= text && *nl == '\n')
             *nl = '\0';
-        DebugOutput(k_ESteamNetworkingSocketsDebugOutputType_Bug, text);
+        DebugOutput(k_ESteamNetworkingSocketsDebugOutputType_Everything, text);
     }
 
     static void SteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCallback_t *pInfo)
@@ -60,6 +58,8 @@ private:
     HSteamNetPollGroup m_hPollGroup;
     ISteamNetworkingSockets *m_pInterface;
     static NetworkManager *s_pCallbackInstance; // Used for OnSteamNetConnectionStatusChanged since we cannot cast a member function to a void pointer
+    static bool g_bQuit;
+    static SteamNetworkingMicroseconds g_logTimeZero;
 
     void PollIncomingMessages();
 

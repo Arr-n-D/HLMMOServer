@@ -1,8 +1,8 @@
 #include "NetworkManager.hpp"
 
-bool g_bQuit = false;
-SteamNetworkingMicroseconds g_logTimeZero;
 NetworkManager *NetworkManager::s_pCallbackInstance = nullptr;
+bool NetworkManager::g_bQuit = false;
+SteamNetworkingMicroseconds NetworkManager::g_logTimeZero;
 
 NetworkManager::NetworkManager()
 {
@@ -26,12 +26,15 @@ void NetworkManager::Init()
 void NetworkManager::StartServer()
 {
     // Start listening
+    m_pInterface = SteamNetworkingSockets();
+
     SteamNetworkingIPAddr serverLocalAddr;
     serverLocalAddr.Clear();
     serverLocalAddr.m_port = 27015;
     SteamNetworkingConfigValue_t opt;
     opt.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void *)SteamNetConnectionStatusChangedCallback);
     m_hListenSock = m_pInterface->CreateListenSocketIP(serverLocalAddr, 1, &opt);
+    printf_s("Initializing network manager\n");
     if (m_hListenSock == k_HSteamListenSocket_Invalid)
         FatalError("Failed to listen on port %d", 27015);
     m_hPollGroup = m_pInterface->CreatePollGroup();
@@ -39,7 +42,7 @@ void NetworkManager::StartServer()
         FatalError("Failed to listen on port %d", 27015);
     printf_s("Listening on port %d\n", 27015);
 
-    while (!g_bQuit)
+    while (!NetworkManager::g_bQuit)
     {
         // PollIncomingMessages();
         PollConnectionStateChanges();

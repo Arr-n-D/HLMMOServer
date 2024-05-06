@@ -1,4 +1,6 @@
 local projectName = "HLMMOServer"
+add_rules("mode.debug", "mode.release")
+
 
 target(projectName)
     set_kind("binary")
@@ -7,6 +9,9 @@ target(projectName)
 
     add_includedirs(".")
     add_includedirs("./include")
+    if is_mode("debug") then
+        add_defines("DEBUG")
+    end
     
     add_files("main.cpp")
     add_files("./src/*.cpp")
