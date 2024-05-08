@@ -10,6 +10,7 @@
 #include <map>
 #include <string>
 #include <thread>
+#include "Client.hpp"
 
 class NetworkManager {
    public:
@@ -19,8 +20,9 @@ class NetworkManager {
     void Init();
     void StartServer();
 
-    std::map<HSteamNetConnection, std::string> m_mapClients;
+    std::map<HSteamNetConnection, *Client> m_mapClients;
 
+    #pragma region StaticRegion
     static void DebugOutput( ESteamNetworkingSocketsDebugOutputType eType, const char *pszMsg ) {
         SteamNetworkingMicroseconds time = SteamNetworkingUtils()->GetLocalTimestamp() - g_logTimeZero;
         printf( "%10.6f %s\n", time * 1e-6, pszMsg );
@@ -46,6 +48,7 @@ class NetworkManager {
     static void SteamNetConnectionStatusChangedCallback( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
         s_pCallbackInstance->OnSteamNetConnectionStatusChanged( pInfo );
     }
+    #pragma endregion
 
    private:
     HSteamListenSocket m_hListenSock;
@@ -57,11 +60,13 @@ class NetworkManager {
 
     void PollIncomingMessages();
 
-    void OnClientConnect( SteamNetConnectionStatusChangedCallback_t *pInfo );
+    #pragma region Event Callbacks
+    void OnClientConnecting( SteamNetConnectionStatusChangedCallback_t *pInfo );
+    void OnClientConnected( SteamNetConnectionStatusChangedCallback_t *pInfo );
     void OnClientDisconnect( SteamNetConnectionStatusChangedCallback_t *pInfo );
     void OnSteamNetConnectionStatusChanged( SteamNetConnectionStatusChangedCallback_t *pInfo );
-
     void OnMessagedReceived();
+    #pragma endregion
 
     void PollConnectionStateChanges();
 };
