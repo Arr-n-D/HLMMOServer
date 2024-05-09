@@ -65,8 +65,7 @@ void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback
 }
 
 void NetworkManager::OnClientConnected( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
-    // Create a new client object
-    // newClient.SetConnection( pInfo->m_hConn );
+
     m_mapClients[pInfo->m_hConn] = new Client();
 
     // Test this case if client disconnects while after connecting

@@ -1,5 +1,8 @@
 local projectName = "HLMMOServer"
 add_rules("mode.debug", "mode.release")
+add_requires("boost")
+-- add_requires("msgpack")
+
 
 
 target(projectName)
@@ -7,6 +10,9 @@ target(projectName)
     set_languages("cxx20")
     set_exceptions("cxx")
 
+
+    add_packages("boost")
+    add_packages("msgpack")
     add_includedirs(".")
     add_includedirs("./include")
     if is_mode("debug") then

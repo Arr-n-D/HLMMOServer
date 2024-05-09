@@ -20,7 +20,7 @@ class NetworkManager {
     void Init();
     void StartServer();
 
-    std::map<HSteamNetConnection, *Client> m_mapClients;
+    std::map<HSteamNetConnection, Client*> m_mapClients;
 
     #pragma region StaticRegion
     static void DebugOutput( ESteamNetworkingSocketsDebugOutputType eType, const char *pszMsg ) {
