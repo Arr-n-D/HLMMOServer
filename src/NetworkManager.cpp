@@ -1,4 +1,5 @@
-#include "NetworkManager.hpp"
+#include "Networking/NetworkManager.hpp"
+using namespace Networking;
 
 NetworkManager *NetworkManager::s_pCallbackInstance = nullptr;
 bool NetworkManager::g_bQuit = false;
@@ -65,7 +66,6 @@ void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback
 }
 
 void NetworkManager::OnClientConnected( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
-
     m_mapClients[pInfo->m_hConn] = new Client();
 
     // Test this case if client disconnects while after connecting
@@ -75,7 +75,6 @@ void NetworkManager::OnClientConnected( SteamNetConnectionStatusChangedCallback_
     // } else {
     //     pszDebugLogAction = "closed by peer";
     // }
-
 }
 
 void NetworkManager::OnClientDisconnect( SteamNetConnectionStatusChangedCallback_t *pInfo ) {

@@ -1,4 +1,6 @@
-#include "NetworkManager.hpp"
+#include "networking/NetworkManager.hpp"
+
+using namespace Networking;
 
 int main() {
     NetworkManager networkManager;
@@ -6,3 +8,4 @@ int main() {
     networkManager.StartServer();
     return 0;
 }
+
