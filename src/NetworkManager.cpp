@@ -1,4 +1,6 @@
 #include "Networking/NetworkManager.hpp"
+#include "Networking/network_types.hpp"
+
 using namespace Networking;
 
 NetworkManager *NetworkManager::s_pCallbackInstance = nullptr;
@@ -67,6 +69,9 @@ void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback
 
 void NetworkManager::OnClientConnected( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
     m_mapClients[pInfo->m_hConn] = new Client();
+
+    // send a packet to the client with a message
+    Packet packet;
 
     // Test this case if client disconnects while after connecting
     // const char *pszDebugLogAction;
