@@ -3,7 +3,7 @@
 #include <iostream>
 #include "msgpack.hpp"
 
-enum class PacketType {
+enum PacketType {
     RPC = 0,
     GameMessage = 1,
 };

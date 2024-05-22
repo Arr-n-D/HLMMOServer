@@ -1,4 +1,5 @@
 #include "Networking/NetworkManager.hpp"
+
 #include "Networking/network_types.hpp"
 
 using namespace Networking;
@@ -71,7 +72,26 @@ void NetworkManager::OnClientConnected( SteamNetConnectionStatusChangedCallback_
     m_mapClients[pInfo->m_hConn] = new Client();
 
     // send a packet to the client with a message
-    Packet packet;
+
+    GameMessageDiscordAuthRequest request = { "test" };
+
+    msgpack::sbuffer buffer;
+    msgpack::pack( buffer, request );
+
+    const char *data = buffer.data();
+
+    Packet packet = { 
+        PacketType::GameMessage, 
+        0, 
+        buffer.size(), 
+        data 
+    }; 
+
+    // MSGPACK a second time
+    msgpack::sbuffer buffer2;
+    msgpack::pack( buffer2, packet );
+
+    m_pInterface->SendMessageToConnection( pInfo->m_hConn, buffer2.data(), (uint32)buffer2.size(), k_nSteamNetworkingSend_Reliable, nullptr );
 
     // Test this case if client disconnects while after connecting
     // const char *pszDebugLogAction;
