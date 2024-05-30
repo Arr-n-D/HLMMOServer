@@ -23,6 +23,7 @@ target(projectName)
     add_files("./src/*.cpp")
 
     add_links("GameNetworkingSockets")
+    add_links("Bcrypt")
 
     -- Add link search directory
     add_linkdirs(".")

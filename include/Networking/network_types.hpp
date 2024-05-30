@@ -17,6 +17,6 @@ struct Packet {
 };
 
 struct GameMessageDiscordAuthRequest {
-    std::string token;
-    MSGPACK_DEFINE(token);
+    std::string redirectionUrl;
+    MSGPACK_DEFINE(redirectionUrl);
 };

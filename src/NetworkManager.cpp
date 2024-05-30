@@ -69,14 +69,16 @@ void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback
 }
 
 void NetworkManager::OnClientConnected( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
-    m_mapClients[pInfo->m_hConn] = new Client();
+    Client *client = new Client( boost::uuids::random_generator()(), pInfo->m_hConn );
+    m_mapClients[pInfo->m_hConn] = client;
 
     // send a packet to the client with a message
-
-    GameMessageDiscordAuthRequest request = { "test" };
+    std::string requestUrl = std::format( "https://discord.com/oauth2/authorize?client_id={0}&response_type=code&redirect_uri={1}&scope=identify&state={2}", "1245489945733370064", "http://localhost:3000/callback", boost::uuids::to_string( client->GetUuid() ));
+    GameMessageDiscordAuthRequest request = { requestUrl };
 
     msgpack::sbuffer buffer;
     msgpack::pack( buffer, request );
+    
 
     const char *data = buffer.data();
 
@@ -91,7 +93,15 @@ void NetworkManager::OnClientConnected( SteamNetConnectionStatusChangedCallback_
     msgpack::sbuffer buffer2;
     msgpack::pack( buffer2, packet );
 
-    m_pInterface->SendMessageToConnection( pInfo->m_hConn, buffer2.data(), (uint32)buffer2.size(), k_nSteamNetworkingSend_Reliable, nullptr );
+    EResult result = m_pInterface->SendMessageToConnection( pInfo->m_hConn, buffer2.data(), (uint32)buffer2.size(), k_nSteamNetworkingSend_Reliable, nullptr );
+    // try and get result of above
+    // print the value of result
+    printf_s( "Result of sending message to client: %d", result );
+    if ( result != k_EResultOK ) {
+        printf_s( "Failed to send message to client" );
+    }
+
+    
 
     // Test this case if client disconnects while after connecting
     // const char *pszDebugLogAction;
