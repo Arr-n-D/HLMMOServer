@@ -1,6 +1,7 @@
 #include "Networking/NetworkManager.hpp"
 
 #include "Networking/network_types.hpp"
+// #include <DiscordAuth.hpp>
 
 using namespace Networking;
 
@@ -8,7 +9,8 @@ NetworkManager *NetworkManager::s_pCallbackInstance = nullptr;
 bool NetworkManager::g_bQuit = false;
 SteamNetworkingMicroseconds NetworkManager::g_logTimeZero;
 
-NetworkManager::NetworkManager() {
+NetworkManager::NetworkManager(DiscordAuth *pDiscordAuth) {
+    this->m_pDiscordAuth = pDiscordAuth;
 }
 
 NetworkManager::~NetworkManager() {
@@ -69,47 +71,10 @@ void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback
 }
 
 void NetworkManager::OnClientConnected( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
-    Client *client = new Client( boost::uuids::random_generator()(), pInfo->m_hConn );
+    Client *client = new Client( boost::uuids::random_generator()(), pInfo->m_hConn, this->m_pDiscordAuth );
+    client->Authenticate();
+
     m_mapClients[pInfo->m_hConn] = client;
-
-    // send a packet to the client with a message
-    std::string requestUrl = std::format( "https://discord.com/oauth2/authorize?client_id={0}&response_type=code&redirect_uri={1}&scope=identify&state={2}", "1245489945733370064", "http://localhost:3000/callback", boost::uuids::to_string( client->GetUuid() ));
-    GameMessageDiscordAuthRequest request = { requestUrl };
-
-    msgpack::sbuffer buffer;
-    msgpack::pack( buffer, request );
-    
-
-    const char *data = buffer.data();
-
-    Packet packet = { 
-        PacketType::GameMessage, 
-        0, 
-        buffer.size(), 
-        data 
-    }; 
-
-    // MSGPACK a second time
-    msgpack::sbuffer buffer2;
-    msgpack::pack( buffer2, packet );
-
-    EResult result = m_pInterface->SendMessageToConnection( pInfo->m_hConn, buffer2.data(), (uint32)buffer2.size(), k_nSteamNetworkingSend_Reliable, nullptr );
-    // try and get result of above
-    // print the value of result
-    printf_s( "Result of sending message to client: %d", result );
-    if ( result != k_EResultOK ) {
-        printf_s( "Failed to send message to client" );
-    }
-
-    
-
-    // Test this case if client disconnects while after connecting
-    // const char *pszDebugLogAction;
-    // if ( pInfo->m_info.m_eState == k_ESteamNetworkingConnectionState_Connected ) {
-    //     pszDebugLogAction = "connected";
-    // } else {
-    //     pszDebugLogAction = "closed by peer";
-    // }
 }
 
 void NetworkManager::OnClientDisconnect( SteamNetConnectionStatusChangedCallback_t *pInfo ) {

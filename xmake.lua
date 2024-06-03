@@ -9,6 +9,9 @@ target(projectName)
     set_kind("binary")
     set_languages("cxx20")
     set_exceptions("cxx")
+    add_runenvs("DISCORD_CLIENT_ID", "1245489945733370064" )
+    add_runenvs("DISCORD_SECRET", "f" )
+    add_runenvs("DISCORD_REDIRECT_URI", "http://localhost:3000/callback" )
 
 
     add_packages("boost")
@@ -27,3 +30,5 @@ target(projectName)
 
     -- Add link search directory
     add_linkdirs(".")
+
+    

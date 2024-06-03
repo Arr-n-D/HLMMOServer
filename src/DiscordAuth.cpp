@@ -20,3 +20,9 @@ std::string DiscordAuth::GetSecret() {
 std::string DiscordAuth::GetRedirectUri() {
     return this->redirect_uri;
 }
+
+std::string DiscordAuth::BuildAuthUrlForClient(Client *client) {
+    std::string url = std::format( "https://discord.com/oauth2/authorize?client_id={0}&response_type=code&redirect_uri={1}&scope=identify+email&state={2}", this->clientId, this->redirect_uri, boost::uuids::to_string( client->GetUuid() ));
+    return url;
+}
+

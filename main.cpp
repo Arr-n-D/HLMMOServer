@@ -1,11 +1,12 @@
-#include "networking/NetworkManager.hpp"
+// #include "networking/NetworkManager.hpp"
 
-using namespace Networking;
+// using namespace Networking;
+#include <Core.hpp>
+
 
 int main() {
-    NetworkManager networkManager;
-    networkManager.Init();
-    networkManager.StartServer();
+    Core core;
+    core.Initialize();
     return 0;
 }
 

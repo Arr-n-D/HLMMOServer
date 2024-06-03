@@ -13,10 +13,12 @@
 
 #include "Client.hpp"
 
+class DiscordAuth;
+
 namespace Networking {
 class NetworkManager {
    public:
-    NetworkManager();
+    NetworkManager(DiscordAuth *pDiscordAuth);
     ~NetworkManager();
 
     void Init();
@@ -56,11 +58,13 @@ class NetworkManager {
     HSteamListenSocket m_hListenSock;
     HSteamNetPollGroup m_hPollGroup;
     ISteamNetworkingSockets *m_pInterface;
+    DiscordAuth *m_pDiscordAuth;
     static NetworkManager *s_pCallbackInstance;  // Used for OnSteamNetConnectionStatusChanged since we cannot cast a member function to a void pointer
     static bool g_bQuit;
     static SteamNetworkingMicroseconds g_logTimeZero;
 
     void PollIncomingMessages();
+
 
 #pragma region Event Callbacks
     void OnClientConnecting( SteamNetConnectionStatusChangedCallback_t *pInfo );
