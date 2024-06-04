@@ -71,10 +71,14 @@ void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback
 }
 
 void NetworkManager::OnClientConnected( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
-    Client *client = new Client( boost::uuids::random_generator()(), pInfo->m_hConn, this->m_pDiscordAuth );
-    client->Authenticate();
+    Client *client = new Client( this->m_pInterface, boost::uuids::random_generator()(), pInfo->m_hConn, this->m_pDiscordAuth );
+    if (client->Authenticate() ) {
+        m_mapClients[pInfo->m_hConn] = client;
+    } else {
+        m_pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
+    }
 
-    m_mapClients[pInfo->m_hConn] = client;
+
 }
 
 void NetworkManager::OnClientDisconnect( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
@@ -157,3 +161,4 @@ void NetworkManager::PollConnectionStateChanges() {
     s_pCallbackInstance = this;
     m_pInterface->RunCallbacks();
 }
+

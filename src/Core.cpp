@@ -1,12 +1,9 @@
 #include <Core.hpp>
-#include <iostream>
-
 #include <chrono>
+#include <iostream>
 #include <thread>
 
 using namespace std::chrono_literals;
-
-
 
 Core::Core(){};
 
@@ -25,7 +22,7 @@ void Core::Initialize() {
     if ( clientId == NULL || discordSecret == NULL || redirectURI == NULL ) {
         // exit if the environment variables are not set
         std::cout << "Missing environment variables" << std::endl;
-       std::this_thread::sleep_for(5000ms);
+        std::this_thread::sleep_for( 5000ms );
         exit( 1 );
     } else {
         std::string sClientId( clientId );
@@ -40,6 +37,5 @@ void Core::Initialize() {
         m_pNetworkManager = new Networking::NetworkManager( m_pDiscordAuth );
         m_pNetworkManager->Init();
         m_pNetworkManager->StartServer();
-        //  ...
     }
 }

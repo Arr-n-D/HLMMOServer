@@ -4,14 +4,18 @@
 #include <stdio.h>
 #include <steam/isteamnetworkingutils.h>
 #include <steam/steamnetworkingsockets.h>
-#include <string.h>
-
 #include <chrono>
 #include <map>
 #include <string>
 #include <thread>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <stdlib.h>
 
 #include "Client.hpp"
+#include "Networking/network_types.hpp"
 
 class DiscordAuth;
 
@@ -25,6 +29,8 @@ class NetworkManager {
     void StartServer();
 
     std::map<HSteamNetConnection, Client *> m_mapClients;
+    bool SendMessage( HSteamNetConnection hConn, Packet packet, uint32 size, int nSendFlags );
+    bool SendGlobalMessage( Packet packet, uint32 size, int nSendFlags  );
 
 #pragma region StaticRegion
     static void DebugOutput( ESteamNetworkingSocketsDebugOutputType eType, const char *pszMsg ) {

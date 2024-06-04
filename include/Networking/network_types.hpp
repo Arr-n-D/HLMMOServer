@@ -9,7 +9,7 @@ enum PacketType {
 };
 
 struct Packet {
-    uint8_t packetType; // 
+    uint8_t packetType; 
     uint8_t gameMessage; 
     size_t size;
     std::string data;
