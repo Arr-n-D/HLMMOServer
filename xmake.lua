@@ -1,17 +1,12 @@
 local projectName = "HLMMOServer"
 add_rules("mode.debug", "mode.release")
 add_requires("boost")
--- add_requires("msgpack")
-
 
 
 target(projectName)
     set_kind("binary")
     set_languages("cxx20")
     set_exceptions("cxx")
-    add_runenvs("DISCORD_CLIENT_ID", "1245489945733370064" )
-    add_runenvs("DISCORD_SECRET", "f" )
-    add_runenvs("DISCORD_REDIRECT_URI", "http://localhost:3000/callback" )
 
 
     add_packages("boost")
@@ -26,9 +21,6 @@ target(projectName)
     add_files("./src/*.cpp")
 
     add_links("GameNetworkingSockets")
-    add_links("Bcrypt")
 
     -- Add link search directory
     add_linkdirs(".")
-
-    
