@@ -11,6 +11,5 @@ Client::~Client() {
 
 void Client::Authenticate() {
     std::string url = this->m_pDiscordAuth->BuildAuthUrlForClient(this);
-    printf_s("Authenticating client with url: %s", url.c_str());
+    printf("Authenticating client with url: %s", url.c_str());
 }
-// go for it 

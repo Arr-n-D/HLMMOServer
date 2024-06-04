@@ -42,7 +42,7 @@ void NetworkManager::StartServer() {
     m_hPollGroup = m_pInterface->CreatePollGroup();
     if ( m_hPollGroup == k_HSteamNetPollGroup_Invalid )
         FatalError( "Failed to listen on port %d", 27015 );
-    printf_s( "Listening on port %d\n", 27015 );
+    printf( "Listening on port %d\n", 27015 );
 
     while ( !NetworkManager::g_bQuit ) {
         // PollIncomingMessages();
@@ -54,17 +54,17 @@ void NetworkManager::StartServer() {
 void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
     assert( m_mapClients.find( pInfo->m_hConn ) == m_mapClients.end() );
 
-    printf_s( "Connection request from %s", pInfo->m_info.m_szConnectionDescription );
+    printf( "Connection request from %s", pInfo->m_info.m_szConnectionDescription );
 
     if ( m_pInterface->AcceptConnection( pInfo->m_hConn ) != k_EResultOK ) {
         m_pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
-        printf_s( "Can't accept connection.  (It was already closed?)" );  // Add more logging
+        printf( "Can't accept connection.  (It was already closed?)" );  // Add more logging
     }
 
     // Assign the poll group
     if ( !m_pInterface->SetConnectionPollGroup( pInfo->m_hConn, m_hPollGroup ) ) {
         m_pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
-        printf_s( "Failed to set poll group?" );
+        printf( "Failed to set poll group?" );
     }
 
     OnClientConnected( pInfo );
@@ -104,7 +104,7 @@ void NetworkManager::OnClientDisconnect( SteamNetConnectionStatusChangedCallback
                 // Spew something to our own log.  Note that because we put their nick
                 // as the connection description, it will show up, along with their
                 // transport-specific data (e.g. their IP address)
-                printf_s( "Connection %s %s, reason %d: %s\n",
+                printf( "Connection %s %s, reason %d: %s\n",
                           pInfo->m_info.m_szConnectionDescription,
                           pszDebugLogAction,
                           pInfo->m_info.m_eEndReason,

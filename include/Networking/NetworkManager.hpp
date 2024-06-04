@@ -41,7 +41,7 @@ class NetworkManager {
         char text[2048];
         va_list ap;
         va_start( ap, fmt );
-        vsprintf_s( text, fmt, ap );
+        vsprintf( text, fmt, ap );
         va_end( ap );
         char *nl = strchr( text, '\0' ) - 1;
         if ( nl >= text && *nl == '\n' )
