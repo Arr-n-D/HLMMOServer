@@ -28,7 +28,6 @@ RUN apk add gcc=13.2.1_git20240309-r0 \
             g++=13.2.1_git20240309-r0 \
             libcrypto3=3.3.0-r2 \
             xmake=2.9.1-r0 \
-            # unzip=6.0-r14 \
             git=2.45.1-r0 \
             7zip=23.01-r0 \
             curl=8.7.1-r0 \
