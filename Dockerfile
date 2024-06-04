@@ -1,13 +1,13 @@
 FROM library/alpine:3.20.0 as gamenetworkingsockets
 
 RUN apk add git=2.45.1-r0 \
-            cmake=3.29.3-r0 \
-            ninja-is-really-ninja=1.12.1-r0 \
-            gcc=13.2.1_git20240309-r0 \
-            musl-dev=1.2.5-r0 \
-            g++=13.2.1_git20240309-r0 \
-            openssl-dev=3.3.0-r2 \
-            protobuf-dev=24.4-r1
+    cmake=3.29.3-r0 \
+    ninja-is-really-ninja=1.12.1-r0 \
+    gcc=13.2.1_git20240309-r0 \
+    musl-dev=1.2.5-r0 \
+    g++=13.2.1_git20240309-r0 \
+    openssl-dev=3.3.0-r2 \
+    protobuf-dev=24.4-r1
 
 WORKDIR /app
 
@@ -25,14 +25,14 @@ FROM library/alpine:3.20.0 as server
 WORKDIR /app
 
 RUN apk add gcc=13.2.1_git20240309-r0 \
-            g++=13.2.1_git20240309-r0 \
-            libcrypto3=3.3.0-r2 \
-            xmake=2.9.1-r0 \
-            git=2.45.1-r0 \
-            7zip=23.01-r0 \
-            curl=8.7.1-r0 \
-            linux-headers=6.6-r0 \
-            libprotobuf=24.4-r1
+    g++=13.2.1_git20240309-r0 \
+    libcrypto3=3.3.0-r2 \
+    xmake=2.9.1-r0 \
+    git=2.45.1-r0 \
+    7zip=23.01-r0 \
+    curl=8.7.1-r0 \
+    linux-headers=6.6-r0 \
+    libprotobuf=24.4-r1
 
 COPY ./xmake.lua /app
 
