@@ -4,5 +4,7 @@ services:
   server:
     image: hlmmo/server:latest
     build: .
+    ports:
+      - "27015:27015/udp"
     env_file:
       - ./.env
