@@ -43,7 +43,7 @@ COPY ./main.cpp /app
 COPY ./src/ /app/src/
 COPY ./include/ /app/include/
 
-RUN xmake --root --diagnosis --yes
+RUN xmake --root --yes
 
 FROM library/alpine:3.20.0
 
