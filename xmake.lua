@@ -1,7 +1,8 @@
 local projectName = "HLMMOServer"
-add_rules("mode.debug", "mode.release")
-add_requires("boost")
 
+add_rules("mode.debug", "mode.release")
+
+add_requires("boost", "spdlog")
 
 target(projectName)
     set_kind("binary")
@@ -11,8 +12,11 @@ target(projectName)
 
     add_packages("boost")
     add_packages("msgpack")
+    add_packages("spdlog")
+
     add_includedirs(".")
     add_includedirs("./include")
+
     if is_mode("debug") then
         add_defines("DEBUG")
     end
