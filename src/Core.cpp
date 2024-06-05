@@ -16,9 +16,9 @@ void Core::Initialize() {
     std::string sSecret = GetEnvironmentVariable( "DISCORD_SECRET" );
     std::string RedirectURI = GetEnvironmentVariable( "DISCORD_REDIRECT_URI" );
 
-    spdlog::info( "Client ID: {}", sClientId );
-    spdlog::info( "Client Secret: {}", sSecret );
-    spdlog::info( "Redirect URI: {}", RedirectURI );
+    spdlog::debug( "Client ID: {}", sClientId );
+    spdlog::debug( "Client Secret: {}", sSecret );
+    spdlog::debug( "Redirect URI: {}", RedirectURI );
 
     m_pDiscordAuth = new DiscordAuth( sClientId, sSecret, RedirectURI );
     m_pNetworkManager = new Networking::NetworkManager( m_pDiscordAuth );
