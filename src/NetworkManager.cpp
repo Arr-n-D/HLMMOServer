@@ -105,11 +105,11 @@ void NetworkManager::OnClientDisconnect( SteamNetConnectionStatusChangedCallback
                 // Spew something to our own log.  Note that because we put their nick
                 // as the connection description, it will show up, along with their
                 // transport-specific data (e.g. their IP address)
-                printf( "Connection %s %s, reason %d: %s\n",
-                          pInfo->m_info.m_szConnectionDescription,
-                          pszDebugLogAction,
-                          pInfo->m_info.m_eEndReason,
-                          pInfo->m_info.m_szEndDebug );
+                spdlog::debug( "Connection {} {}, reason {}: {}",
+                               pInfo->m_info.m_szConnectionDescription,
+                               pszDebugLogAction,
+                               pInfo->m_info.m_eEndReason,
+                               pInfo->m_info.m_szEndDebug );
 
                 m_mapClients.erase( itClient );
 
