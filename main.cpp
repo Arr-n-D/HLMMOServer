@@ -20,7 +20,10 @@ bool IsInsideDocker() {
 void SetupLogging() {
     spdlog::init_thread_pool( 8192, 1 );
 
+    // Needed for having the console output
     auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+
+    // Rotate to a new logfile on midnight
     auto daily_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>( "logs/daily.txt", 0, 0 );
 
     if ( IsInsideDocker() ) {
