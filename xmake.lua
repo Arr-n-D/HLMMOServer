@@ -19,6 +19,7 @@ target(projectName)
     
     add_files("main.cpp")
     add_files("./src/*.cpp")
+    add_files("./src/**/*.cpp")
 
     add_links("GameNetworkingSockets")
 
