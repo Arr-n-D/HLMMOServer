@@ -8,6 +8,10 @@ install:
 clean:
 	rm -rf ./build/
 
+.PHONY: clear
+clear:
+	@cls || clear
+
 .PHONY: build-debug
 build-debug:
 	${XMAKE_EXECUTABLE} config -m debug
