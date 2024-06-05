@@ -1,5 +1,4 @@
 #include <Core.hpp>
-#include <thread>
 
 #include "spdlog/spdlog.h"
 
