@@ -38,4 +38,3 @@ bool Client::SendMessage( Packet packet, uint32 size, int nSendFlags ) {
     
     return this->m_pInterface->SendMessageToConnection( this->m_hConnection,buffer2.data(), (uint32)buffer2.size(), nSendFlags, nullptr );
 }
-// go for it

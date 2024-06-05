@@ -9,7 +9,7 @@ NetworkManager *NetworkManager::s_pCallbackInstance = nullptr;
 bool NetworkManager::g_bQuit = false;
 SteamNetworkingMicroseconds NetworkManager::g_logTimeZero;
 
-NetworkManager::NetworkManager(DiscordAuth *pDiscordAuth) {
+NetworkManager::NetworkManager( DiscordAuth *pDiscordAuth ) {
     this->m_pDiscordAuth = pDiscordAuth;
 }
 
@@ -24,6 +24,8 @@ void NetworkManager::Init() {
     g_logTimeZero = SteamNetworkingUtils()->GetLocalTimestamp();
 
     SteamNetworkingUtils()->SetDebugOutputFunction( k_ESteamNetworkingSocketsDebugOutputType_Everything, DebugOutput );
+
+    this->InitializeAuthServer();
 }
 
 void NetworkManager::StartServer() {
@@ -51,6 +53,54 @@ void NetworkManager::StartServer() {
     }
 }
 
+void NetworkManager::InitializeAuthServer() {
+    printf( "Initializing Auth Server\n" );
+    char *socket_path = "/tmp/icp-test";
+    struct sockaddr_un addr;
+    int fileDescriptor;
+
+    if ( ( fileDescriptor = socket( AF_UNIX, SOCK_STREAM, 0 ) ) == -1 ) {
+        printf( "Auth server socket failed to initialize, exiting" );
+        exit( 1 );
+    }
+
+    printf( "Auth server socket initialized\n" );
+    
+
+    memset( &addr, 0, sizeof( addr ) );
+    addr.sun_family = AF_UNIX;
+    if ( *socket_path == '\0' ) {
+        *addr.sun_path = '\0';
+        strncpy( addr.sun_path + 1, socket_path + 1, sizeof( addr.sun_path ) - 2 );
+    } else {
+        strncpy( addr.sun_path, socket_path, sizeof( addr.sun_path ) - 1 );
+        unlink( socket_path );
+    }
+
+    printf( "Auth server socket path set\n" );
+
+    if ( bind( fileDescriptor, (struct sockaddr *)&addr, sizeof( addr ) ) == -1 ) {
+        perror( "bind error" );
+        exit( -1 );
+    }
+
+    printf( "Auth server socket bound\n" );
+
+    if ( listen( fileDescriptor, 1 ) == -1 ) {
+        printf( "Auth server socket failed to listen, exiting" );
+        exit( 1 );
+    }
+
+    printf( "Auth server socket listening\n" );
+
+    while ( 1 ) {
+        if ( ( this->m_nAuthServerSocketClient = accept( fileDescriptor, NULL, NULL ) ) == -1 ) {
+            perror( "accept error" );
+            continue;
+        }
+    }
+}
+
 void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
     assert( m_mapClients.find( pInfo->m_hConn ) == m_mapClients.end() );
 
@@ -72,13 +122,11 @@ void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback
 
 void NetworkManager::OnClientConnected( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
     Client *client = new Client( this->m_pInterface, boost::uuids::random_generator()(), pInfo->m_hConn, this->m_pDiscordAuth );
-    if (client->Authenticate() ) {
+    if ( client->Authenticate() ) {
         m_mapClients[pInfo->m_hConn] = client;
     } else {
         m_pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
     }
-
-
 }
 
 void NetworkManager::OnClientDisconnect( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
@@ -109,10 +157,10 @@ void NetworkManager::OnClientDisconnect( SteamNetConnectionStatusChangedCallback
                 // as the connection description, it will show up, along with their
                 // transport-specific data (e.g. their IP address)
                 printf( "Connection %s %s, reason %d: %s\n",
-                          pInfo->m_info.m_szConnectionDescription,
-                          pszDebugLogAction,
-                          pInfo->m_info.m_eEndReason,
-                          pInfo->m_info.m_szEndDebug );
+                        pInfo->m_info.m_szConnectionDescription,
+                        pszDebugLogAction,
+                        pInfo->m_info.m_eEndReason,
+                        pInfo->m_info.m_szEndDebug );
 
                 m_mapClients.erase( itClient );
 
@@ -161,4 +209,3 @@ void NetworkManager::PollConnectionStateChanges() {
     s_pCallbackInstance = this;
     m_pInterface->RunCallbacks();
 }
-
