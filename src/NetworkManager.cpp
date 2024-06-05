@@ -1,7 +1,7 @@
 #include "Networking/NetworkManager.hpp"
 
 #include "Networking/network_types.hpp"
-// #include <DiscordAuth.hpp>
+#include "spdlog/spdlog.h"
 
 using namespace Networking;
 
@@ -44,7 +44,8 @@ void NetworkManager::StartServer() {
     m_hPollGroup = m_pInterface->CreatePollGroup();
     if ( m_hPollGroup == k_HSteamNetPollGroup_Invalid )
         FatalError( "Failed to listen on port %d", 27015 );
-    printf( "Listening on port %d\n", 27015 );
+
+    spdlog::info( "Listening on port {0}", 27015 );
 
     while ( !NetworkManager::g_bQuit ) {
         // PollIncomingMessages();
@@ -65,7 +66,6 @@ void NetworkManager::InitializeAuthServer() {
     }
 
     printf( "Auth server socket initialized\n" );
-    
 
     memset( &addr, 0, sizeof( addr ) );
     addr.sun_family = AF_UNIX;
@@ -104,17 +104,17 @@ void NetworkManager::InitializeAuthServer() {
 void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
     assert( m_mapClients.find( pInfo->m_hConn ) == m_mapClients.end() );
 
-    printf( "Connection request from %s", pInfo->m_info.m_szConnectionDescription );
+    spdlog::debug( "Connection request from {}", pInfo->m_info.m_szConnectionDescription );
 
     if ( m_pInterface->AcceptConnection( pInfo->m_hConn ) != k_EResultOK ) {
         m_pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
-        printf( "Can't accept connection.  (It was already closed?)" );  // Add more logging
+        spdlog::warn( "Can't accept connection.  (It was already closed?)" );  // Add more logging
     }
 
     // Assign the poll group
     if ( !m_pInterface->SetConnectionPollGroup( pInfo->m_hConn, m_hPollGroup ) ) {
         m_pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
-        printf( "Failed to set poll group?" );
+        spdlog::warn( "Failed to set poll group" );
     }
 
     OnClientConnected( pInfo );
@@ -156,11 +156,11 @@ void NetworkManager::OnClientDisconnect( SteamNetConnectionStatusChangedCallback
                 // Spew something to our own log.  Note that because we put their nick
                 // as the connection description, it will show up, along with their
                 // transport-specific data (e.g. their IP address)
-                printf( "Connection %s %s, reason %d: %s\n",
-                        pInfo->m_info.m_szConnectionDescription,
-                        pszDebugLogAction,
-                        pInfo->m_info.m_eEndReason,
-                        pInfo->m_info.m_szEndDebug );
+                spdlog::debug( "Connection {} {}, reason {}: {}",
+                               pInfo->m_info.m_szConnectionDescription,
+                               pszDebugLogAction,
+                               pInfo->m_info.m_eEndReason,
+                               pInfo->m_info.m_szEndDebug );
 
                 m_mapClients.erase( itClient );
 

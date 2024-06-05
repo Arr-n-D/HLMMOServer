@@ -1,4 +1,7 @@
 .xmake
 build
 
+# Ignore spdlog logs
+logs/
+
 .env

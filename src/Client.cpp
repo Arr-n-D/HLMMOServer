@@ -3,6 +3,9 @@
 #include <DiscordAuth.hpp>
 #include <Networking/network_types.hpp>
 
+#include "DiscordAuth.hpp"
+#include "spdlog/spdlog.h"
+
 Client::Client( ISteamNetworkingSockets *m_pInterface, boost::uuids::uuid uuid, HSteamNetConnection hConnection, DiscordAuth *pDiscordAuth ) {
     this->m_pInterface = m_pInterface;
     this->uuid = uuid;
@@ -35,6 +38,6 @@ bool Client::Authenticate() {
 bool Client::SendMessage( Packet packet, uint32 size, int nSendFlags ) {
     msgpack::sbuffer buffer2;
     msgpack::pack( buffer2, packet );
-    
-    return this->m_pInterface->SendMessageToConnection( this->m_hConnection,buffer2.data(), (uint32)buffer2.size(), nSendFlags, nullptr );
+
+    return this->m_pInterface->SendMessageToConnection( this->m_hConnection, buffer2.data(), (uint32)buffer2.size(), nSendFlags, nullptr );
 }
