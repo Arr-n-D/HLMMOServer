@@ -1,5 +1,7 @@
 #include "Networking/NetworkManager.hpp"
 
+#include <boost/thread.hpp>
+
 #include "Networking/network_types.hpp"
 #include "spdlog/spdlog.h"
 
@@ -55,52 +57,66 @@ void NetworkManager::StartServer() {
 }
 
 void NetworkManager::InitializeAuthServer() {
-    printf( "Initializing Auth Server\n" );
+    spdlog::info( "Initializing Auth Server\n" );
+    struct sockaddr_un server_addr;
+    memset( &server_addr, 0, sizeof( server_addr ) );
+    int server_socket;
     char *socket_path = "/tmp/icp-test";
-    struct sockaddr_un addr;
-    int fileDescriptor;
 
-    if ( ( fileDescriptor = socket( AF_UNIX, SOCK_STREAM, 0 ) ) == -1 ) {
-        printf( "Auth server socket failed to initialize, exiting" );
+    if ( ( server_socket = socket( AF_UNIX, SOCK_STREAM, 0 ) ) == -1 ) {
+        spdlog::error( "Auth server socket failed to initialize, exiting" );
         exit( 1 );
     }
 
-    printf( "Auth server socket initialized\n" );
+    server_addr.sun_family = AF_UNIX;
+    strcpy( server_addr.sun_path, socket_path );
+    int len = sizeof( server_addr );
 
-    memset( &addr, 0, sizeof( addr ) );
-    addr.sun_family = AF_UNIX;
-    if ( *socket_path == '\0' ) {
-        *addr.sun_path = '\0';
-        strncpy( addr.sun_path + 1, socket_path + 1, sizeof( addr.sun_path ) - 2 );
-    } else {
-        strncpy( addr.sun_path, socket_path, sizeof( addr.sun_path ) - 1 );
-        unlink( socket_path );
-    }
+    // unlink the file before bind, unless it can't bind
+    unlink( socket_path );
 
-    printf( "Auth server socket path set\n" );
-
-    if ( bind( fileDescriptor, (struct sockaddr *)&addr, sizeof( addr ) ) == -1 ) {
-        perror( "bind error" );
-        exit( -1 );
-    }
-
-    printf( "Auth server socket bound\n" );
-
-    if ( listen( fileDescriptor, 1 ) == -1 ) {
-        printf( "Auth server socket failed to listen, exiting" );
+    if ( bind( server_socket, (struct sockaddr *)&server_addr, len ) == -1 ) {
+        spdlog::error( "Auth server socket failed to bind, exiting" );
+        close( server_socket );
         exit( 1 );
     }
 
-    printf( "Auth server socket listening\n" );
+    if ( listen( server_socket, 1 ) == -1 ) {
+        spdlog::error( "Auth server socket failed to listen, exiting" );
+        close( server_socket );
+        exit( 1 );
+    }
 
-    while ( 1 ) {
-        if ( ( this->m_nAuthServerSocketClient = accept( fileDescriptor, NULL, NULL ) ) == -1 ) {
-            perror( "accept error" );
-            continue;
+    if ( this->m_nAuthServerSocketClient = accept( server_socket, NULL, NULL ) == -1 ) {
+        spdlog::error( "Auth server socket failed to accept, exiting" );
+        close( server_socket );
+        close( this->m_nAuthServerSocketClient );
+        exit( 1 );
+    }
+
+    spdlog::info( "Auth server initialized\n" );
+
+    // create a thread with boost::thread
+    boost::thread t( &Networking::NetworkManager::PollIncomingAuthMessages, this );
+}
+void Networking::NetworkManager::PollIncomingAuthMessages() {
+    spdlog::info( "Polling incoming messages from auth server" );
+    while ( !NetworkManager::g_bQuit ) {
+        char buffer[1024];
+        int n = recv( this->m_nAuthServerSocketClient, buffer, sizeof( buffer ), 0 );
+        if ( n < 0 ) {
+            spdlog::error( "Failed to receive message from auth server" );
+            break;
         }
+
+        if ( n == 0 ) {
+            spdlog::info( "Auth server disconnected" );
+            break;
+        }
+
+        spdlog::info( "Received message from auth server: {0}", buffer );
     }
 }
-
 void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
     assert( m_mapClients.find( pInfo->m_hConn ) == m_mapClients.end() );
 

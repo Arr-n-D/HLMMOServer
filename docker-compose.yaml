@@ -10,3 +10,10 @@ services:
       - ./.env
     volumes:
       - ./logs/:/app/logs/
+      - /tmp:/tmp/
+  auth-server:
+    image: hlmmo/auth-server:latest
+    depends_on:
+      - server
+    volumes:
+      - /tmp:/tmp/

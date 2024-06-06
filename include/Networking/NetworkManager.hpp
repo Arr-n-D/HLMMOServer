@@ -71,7 +71,7 @@ class NetworkManager {
     static SteamNetworkingMicroseconds g_logTimeZero;
     int m_nAuthServerSocketClient;
     void InitializeAuthServer();
-
+    void PollIncomingAuthMessages();
     void PollIncomingMessages();
 
 #pragma region Event Callbacks
