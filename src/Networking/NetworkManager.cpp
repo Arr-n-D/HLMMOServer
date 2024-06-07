@@ -169,6 +169,8 @@ void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback
     if ( !m_pInterface->SetConnectionPollGroup( pInfo->m_hConn, m_hPollGroup ) ) {
         m_pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
         spdlog::warn( "Failed to set poll group" );
+
+        return;
     }
 
     OnClientConnected( pInfo );
