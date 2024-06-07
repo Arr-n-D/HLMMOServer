@@ -24,11 +24,17 @@ class Client {
     Client( ISteamNetworkingSockets *interface, std::string uuid, HSteamNetConnection hConnection, DiscordAuth *pDiscordAuth );
     ~Client();
 
-    void SetPlayer( Player *pPlayer );
-    Player *GetPlayer();
-    std::string GetUuid();
     void Authenticate();
+
+#pragma region Getters + Setters
+    std::string GetUuid();
+
+    Player *GetPlayer();
+    void SetPlayer( Player *pPlayer );
+
     void SetAuthenticated( bool newState );
+
+#pragma endregion
 
    private:
     bool SendMessage( Packet packet, uint32 size, int nSendFlags );
