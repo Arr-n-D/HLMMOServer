@@ -7,13 +7,30 @@
 #include "spdlog/spdlog.h"
 
 Client::Client( ISteamNetworkingSockets *m_pInterface, std::string uuid, HSteamNetConnection hConnection, DiscordAuth *pDiscordAuth ) {
-    this->m_pInterface = m_pInterface;
-    this->uuid = uuid;
     this->m_hConnection = hConnection;
+    this->m_pPlayer = nullptr;
+    this->uuid = uuid;
     this->m_pDiscordAuth = pDiscordAuth;
+    this->m_pInterface = m_pInterface;
 }
 
 Client::~Client() {
+}
+
+void Client::SetAuthenticated( bool newState ) {
+    this->authenticated = newState;
+}
+
+std::string Client::GetUuid() {
+    return this->uuid;
+}
+
+Player *Client::GetPlayer() {
+    return this->m_pPlayer;
+}
+
+void Client::SetPlayer( Player *pPlayer ) {
+    this->m_pPlayer = pPlayer;
 }
 
 void Client::Authenticate() {
