@@ -153,6 +153,7 @@ void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback
     for ( auto &client : m_vecClients ) {
         if ( client->GetConnection() == pInfo->m_hConn ) {
             spdlog::warn( "Client already exists with connection {}", pInfo->m_hConn );
+
             return;
         }
     }
@@ -162,6 +163,7 @@ void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback
     if ( m_pInterface->AcceptConnection( pInfo->m_hConn ) != k_EResultOK ) {
         m_pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
         spdlog::warn( "Can't accept connection.  (It was already closed?)" );  // Add more logging
+
         return;
     }
 
