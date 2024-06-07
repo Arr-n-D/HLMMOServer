@@ -10,6 +10,7 @@ Client::Client( ISteamNetworkingSockets *m_pInterface, boost::uuids::uuid uuid, 
     this->m_pInterface = m_pInterface;
     this->uuid = uuid;
     this->m_hConnection = hConnection;
+    this->m_pDiscordAuth = pDiscordAuth;
 }
 
 Client::~Client() {
@@ -32,7 +33,7 @@ bool Client::Authenticate() {
         buffer.size(),
         data };
 
-    this->SendMessage( packet, buffer.size(), 0 );
+    return this->SendMessage( packet, buffer.size(), 0 );
 }
 
 bool Client::SendMessage( Packet packet, uint32 size, int nSendFlags ) {

@@ -3,7 +3,7 @@
 #include <thread>
 
 #include "Networking/network_types.hpp"
-#include "json.hpp"
+
 #include "spdlog/spdlog.h"
 using json = nlohmann::json;
 
@@ -100,24 +100,8 @@ void NetworkManager::InitializeAuthServer() {
 
     // create a thread thread to poll incoming messages
     std::thread authServerPollThread( &NetworkManager::PollIncomingAuthMessages, this );
-    authServerPollThread.join();
+    authServerPollThread.detach();
 }
-
-namespace test {
-struct loginMessage {
-    std::string id;
-    std::string username;
-    std::string email;
-};
-
-struct authServerMessage {
-    std::string type;
-    loginMessage data;
-};
-
-// NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE( authServerMessage, type, data )
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE( loginMessage, id, username, email )
-}  // namespace test
 
 void NetworkManager::PollIncomingAuthMessages() {
     spdlog::info( "Polling incoming messages from auth server" );
@@ -135,14 +119,11 @@ void NetworkManager::PollIncomingAuthMessages() {
             break;  // Exit the loop if the connection is closed
         } else {
 
-            // we get a weird Unicode Character 'FORM FEED (FF)' (U+000C) at the end of the buffer, so we remove it
+            // @TODO #11 - Find out why this is happening we get a weird Unicode Character 'FORM FEED (FF)' (U+000C) at the end of the buffer
             buffer[ receivedBytes -1 ] = '\0';
-            // Parse the message using json library
             json p = json::parse( buffer );
-
-            test::loginMessage message = p["data"].get<test::loginMessage>();
-            // print value id of the message
-            spdlog::info( "Received message from auth server: {}", message.id );
+            LoginMessage message = p["data"].get<LoginMessage>();
+            
         }
     }
 
@@ -152,7 +133,7 @@ void NetworkManager::PollIncomingAuthMessages() {
 void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
     assert( m_mapClients.find( pInfo->m_hConn ) == m_mapClients.end() );
 
-    spdlog::debug( "Connection request from {}", pInfo->m_info.m_szConnectionDescription );
+    spdlog::info( "Connection request from {}", pInfo->m_info.m_szConnectionDescription );
 
     if ( m_pInterface->AcceptConnection( pInfo->m_hConn ) != k_EResultOK ) {
         m_pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
@@ -169,7 +150,9 @@ void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback
 }
 
 void NetworkManager::OnClientConnected( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
+    spdlog::info( "Client connected: {}", pInfo->m_info.m_szConnectionDescription );
     Client *client = new Client( this->m_pInterface, boost::uuids::random_generator()(), pInfo->m_hConn, this->m_pDiscordAuth );
+    spdlog::info( "Client UUID: {}", boost::uuids::to_string( client->GetUuid() ) );
     if ( client->Authenticate() ) {
         m_mapClients[pInfo->m_hConn] = client;
     } else {

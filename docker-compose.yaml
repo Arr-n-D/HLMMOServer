@@ -12,6 +12,8 @@ services:
       - ./logs/:/app/logs/
       - /tmp:/tmp/
   auth-server:
+    ports:
+      - "3000:3000"
     image: hlmmo/auth-server:latest
     depends_on:
       - server
