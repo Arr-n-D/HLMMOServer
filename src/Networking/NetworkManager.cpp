@@ -58,11 +58,13 @@ void NetworkManager::StartServer() {
 }
 
 void NetworkManager::InitializeAuthServer() {
-    spdlog::info( "Initializing Auth Server\n" );
+    spdlog::info( "Initializing Auth Server" );
+
     struct sockaddr_un server_addr;
-    memset( &server_addr, 0, sizeof( server_addr ) );
     int server_socket;
     char *socket_path = "/tmp/icp-test";
+
+    memset( &server_addr, 0, sizeof( server_addr ) );
 
     if ( ( server_socket = socket( AF_UNIX, SOCK_STREAM, 0 ) ) == -1 ) {
         spdlog::error( "Auth server socket failed to initialize, exiting" );
@@ -95,7 +97,7 @@ void NetworkManager::InitializeAuthServer() {
         exit( 1 );
     }
 
-    spdlog::info( "Auth server initialized\n" );
+    spdlog::info( "Auth server initialized" );
 
     // create a thread thread to poll incoming messages
     std::thread authServerPollThread( &NetworkManager::PollIncomingAuthMessages, this );
