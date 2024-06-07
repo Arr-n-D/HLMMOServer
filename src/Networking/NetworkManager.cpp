@@ -177,7 +177,7 @@ void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback
 void NetworkManager::OnClientConnected( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
     spdlog::info( "Client connected: {}", pInfo->m_info.m_szConnectionDescription );
     std::string uuidStr = boost::uuids::to_string( boost::uuids::random_generator()() );
-    Client *client = new Client( this->m_pInterface, , uuidStr, pInfo->m_hConn, this->m_pDiscordAuth );
+    Client *client = new Client( this->m_pInterface, uuidStr, pInfo->m_hConn, this->m_pDiscordAuth );
 
     client->Authenticate();
     m_vecClients.push_back( client );
