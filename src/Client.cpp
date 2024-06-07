@@ -33,6 +33,10 @@ void Client::SetPlayer( Player *pPlayer ) {
     this->m_pPlayer = pPlayer;
 }
 
+HSteamNetConnection Client::GetConnection() {
+    return this->m_hConnection;
+}
+
 void Client::Authenticate() {
     std::string url = this->m_pDiscordAuth->BuildAuthUrlForClient( this );
 

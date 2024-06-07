@@ -32,6 +32,8 @@ class Client {
     Player *GetPlayer();
     void SetPlayer( Player *pPlayer );
 
+    HSteamNetConnection GetConnection();
+
     void SetAuthenticated( bool newState );
 
 #pragma endregion
