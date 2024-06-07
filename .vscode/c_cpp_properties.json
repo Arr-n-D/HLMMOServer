@@ -1,6 +1,7 @@
 {
 	"configurations": [
 		{
+			"name": "DO NOT EDIT",
 			"compileCommands": ".vscode/compile_commands.json"
 		}
 	],
