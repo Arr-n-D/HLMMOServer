@@ -272,12 +272,12 @@ bool NetworkManager::SendPacketToPlayer( HSteamNetConnection hConn, Packet packe
             continue;
         }
 
-        client->SendMessage( packet, size, nSendFlags );
+        client->SendPacket( packet, size, nSendFlags );
     }
 }
 
 bool NetworkManager::SendPacketToAllPlayers( Packet packet, uint32 size, int nSendFlags ) {
     for ( auto &client : this->m_vecClients ) {
-        client->SendMessage( packet, size, nSendFlags );
+        client->SendPacket( packet, size, nSendFlags );
     }
 }
