@@ -265,3 +265,19 @@ void NetworkManager::PollConnectionStateChanges() {
     s_pCallbackInstance = this;
     m_pInterface->RunCallbacks();
 }
+
+bool NetworkManager::SendPacketToPlayer( HSteamNetConnection hConn, Packet packet, uint32 size, int nSendFlags ) {
+    for ( auto &client : this->m_vecClients ) {
+        if ( client->GetConnection() != hConn ) {
+            continue;
+        }
+
+        client->SendMessage( packet, size, nSendFlags );
+    }
+}
+
+bool NetworkManager::SendPacketToAllPlayers( Packet packet, uint32 size, int nSendFlags ) {
+    for ( auto &client : this->m_vecClients ) {
+        client->SendMessage( packet, size, nSendFlags );
+    }
+}

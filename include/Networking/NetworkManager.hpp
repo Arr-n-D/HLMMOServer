@@ -31,8 +31,8 @@ class NetworkManager {
 
     // std::map<HSteamNetConnection, Client *> m_mapClients;
     std::vector<Client *> m_vecClients;
-    bool SendMessage( HSteamNetConnection hConn, Packet packet, uint32 size, int nSendFlags );
-    bool SendGlobalMessage( Packet packet, uint32 size, int nSendFlags );
+    bool SendPacketToPlayer( HSteamNetConnection hConn, Packet packet, uint32 size, int nSendFlags );
+    bool SendPacketToAllPlayers( Packet packet, uint32 size, int nSendFlags );
 
 #pragma region StaticRegion
     static void DebugOutput( ESteamNetworkingSocketsDebugOutputType eType, const char *pszMsg ) {
