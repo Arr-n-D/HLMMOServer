@@ -12,6 +12,7 @@ Client::Client( ISteamNetworkingSockets *m_pInterface, std::string uuid, HSteamN
     this->uuid = uuid;
     this->m_pDiscordAuth = pDiscordAuth;
     this->m_pInterface = m_pInterface;
+    this->authenticated = false;
 }
 
 Client::~Client() {

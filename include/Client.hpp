@@ -19,6 +19,7 @@ class Client {
     std::string uuid;
     DiscordAuth *m_pDiscordAuth;
     ISteamNetworkingSockets *m_pInterface;
+    bool authenticated;
 
    public:
     Client( ISteamNetworkingSockets *interface, std::string uuid, HSteamNetConnection hConnection, DiscordAuth *pDiscordAuth );
@@ -38,7 +39,4 @@ class Client {
     void SetAuthenticated( bool newState );
 
 #pragma endregion
-
-   private:
-    bool authenticated = false;
 };
