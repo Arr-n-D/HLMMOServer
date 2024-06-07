@@ -34,6 +34,9 @@ class NetworkManager {
     bool SendPacketToPlayer( HSteamNetConnection hConn, Packet packet, uint32 size, int nSendFlags );
     bool SendPacketToAllPlayers( Packet packet, uint32 size, int nSendFlags );
 
+    Client *GetClientByUuid( std::string uuidToFind );
+    Client *GetClientByConnectionHandle( HSteamNetConnection connectionHandle );
+
 #pragma region StaticRegion
     static void DebugOutput( ESteamNetworkingSocketsDebugOutputType eType, const char *pszMsg ) {
         SteamNetworkingMicroseconds time = SteamNetworkingUtils()->GetLocalTimestamp() - g_logTimeZero;

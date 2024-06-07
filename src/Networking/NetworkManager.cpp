@@ -285,3 +285,33 @@ bool NetworkManager::SendPacketToAllPlayers( Packet packet, uint32 size, int nSe
         client->SendPacket( packet, size, nSendFlags );
     }
 }
+
+Client *Networking::NetworkManager::GetClientByUuid( std::string uuidToFind ) {
+    Client *foundClient = nullptr;
+
+    for ( auto &client : this->m_vecClients ) {
+        if ( client->GetUuid() != uuidToFind ) {
+            continue;
+        }
+
+        foundClient = client;
+        break;
+    }
+
+    return foundClient;
+}
+
+Client *Networking::NetworkManager::GetClientByConnectionHandle( HSteamNetConnection connectionHandle ) {
+    Client *foundClient = nullptr;
+
+    for ( auto &client : this->m_vecClients ) {
+        if ( client->GetConnection() != connectionHandle ) {
+            continue;
+        }
+
+        foundClient = client;
+        break;
+    }
+
+    return foundClient;
+}
