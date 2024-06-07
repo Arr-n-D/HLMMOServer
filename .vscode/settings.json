@@ -79,7 +79,8 @@
 		"unordered_set": "cpp",
 		"variant": "cpp",
 		"any": "cpp",
-		"filesystem": "cpp"
+		"filesystem": "cpp",
+		"valarray": "cpp"
 	},
 	"cmake.configureOnOpen": false
 }

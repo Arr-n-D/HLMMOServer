@@ -3,7 +3,6 @@
 #include <thread>
 
 #include "Networking/network_types.hpp"
-
 #include "spdlog/spdlog.h"
 using json = nlohmann::json;
 
@@ -118,12 +117,27 @@ void NetworkManager::PollIncomingAuthMessages() {
             spdlog::warn( "Connection closed by auth server" );
             break;  // Exit the loop if the connection is closed
         } else {
-
             // @TODO #11 - Find out why this is happening we get a weird Unicode Character 'FORM FEED (FF)' (U+000C) at the end of the buffer
-            buffer[ receivedBytes -1 ] = '\0';
+            buffer[receivedBytes - 1] = '\0';
             json p = json::parse( buffer );
             LoginMessage message = p["data"].get<LoginMessage>();
-            
+
+            bool clientFound = false;
+            // find client with state in m_vecClients
+            for ( auto &client : m_vecClients ) {
+                if ( client->GetUuid() != message.state ) {
+                    continue;
+                } else {
+                    clientFound = true;
+                    client.SetAuthenticated( true );
+                    break;
+                }
+            }
+
+            if ( !clientFound ) {
+                client.CloseConnection( 0, nullptr, false );
+                spdlog::warn( "Client not found with state {}", message.state );
+            }
         }
     }
 
@@ -131,7 +145,15 @@ void NetworkManager::PollIncomingAuthMessages() {
 }
 
 void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
-    assert( m_mapClients.find( pInfo->m_hConn ) == m_mapClients.end() );
+    // assert( m_mapClients.find( pInfo->m_hConn ) == m_mapClients.end() );
+    // assert (m_vecClients.find( pInfo->m_hConn ) == m_vecClients.end());
+    // find client with pInfo->m_hConn in m_vecClients
+    for ( auto &client : m_vecClients ) {
+        if ( client->GetConnection() == pInfo->m_hConn ) {
+            spdlog::warn( "Client already exists with connection {}", pInfo->m_hConn );
+            return;
+        }
+    }
 
     spdlog::info( "Connection request from {}", pInfo->m_info.m_szConnectionDescription );
 
@@ -151,13 +173,11 @@ void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback
 
 void NetworkManager::OnClientConnected( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
     spdlog::info( "Client connected: {}", pInfo->m_info.m_szConnectionDescription );
-    Client *client = new Client( this->m_pInterface, boost::uuids::random_generator()(), pInfo->m_hConn, this->m_pDiscordAuth );
-    spdlog::info( "Client UUID: {}", boost::uuids::to_string( client->GetUuid() ) );
-    if ( client->Authenticate() ) {
-        m_mapClients[pInfo->m_hConn] = client;
-    } else {
-        m_pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
-    }
+    std::string uuidStr = boost::uuids::to_string( boost::uuids::random_generator()() );
+    Client *client = new Client( this->m_pInterface, , uuidStr, pInfo->m_hConn, this->m_pDiscordAuth );
+
+    client->Authenticate();
+    m_vecClients.push_back( client );
 }
 
 void NetworkManager::OnClientDisconnect( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
@@ -169,6 +189,8 @@ void NetworkManager::OnClientDisconnect( SteamNetConnectionStatusChangedCallback
                 // Locate the client.  Note that it should have been found, because this
                 // is the only codepath where we remove clients (except on shutdown),
                 // and connection change callbacks are dispatched in queue order.
+                // client->getstate
+
                 auto itClient = m_mapClients.find( pInfo->m_hConn );
                 assert( itClient != m_mapClients.end() );
 

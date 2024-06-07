@@ -29,7 +29,8 @@ class NetworkManager {
     void Shutdown();
     void StartServer();
 
-    std::map<HSteamNetConnection, Client *> m_mapClients;
+    // std::map<HSteamNetConnection, Client *> m_mapClients;
+    std::vector<Client *> m_vecClients;
     bool SendMessage( HSteamNetConnection hConn, Packet packet, uint32 size, int nSendFlags );
     bool SendGlobalMessage( Packet packet, uint32 size, int nSendFlags );
 

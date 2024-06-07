@@ -6,7 +6,7 @@
 #include "DiscordAuth.hpp"
 #include "spdlog/spdlog.h"
 
-Client::Client( ISteamNetworkingSockets *m_pInterface, boost::uuids::uuid uuid, HSteamNetConnection hConnection, DiscordAuth *pDiscordAuth ) {
+Client::Client( ISteamNetworkingSockets *m_pInterface, std::string uuid, HSteamNetConnection hConnection, DiscordAuth *pDiscordAuth ) {
     this->m_pInterface = m_pInterface;
     this->uuid = uuid;
     this->m_hConnection = hConnection;
@@ -16,7 +16,7 @@ Client::Client( ISteamNetworkingSockets *m_pInterface, boost::uuids::uuid uuid, 
 Client::~Client() {
 }
 
-bool Client::Authenticate() {
+void Client::Authenticate() {
     std::string url = this->m_pDiscordAuth->BuildAuthUrlForClient( this );
 
     GameMessageDiscordAuthRequest request = { url };
@@ -33,12 +33,12 @@ bool Client::Authenticate() {
         buffer.size(),
         data };
 
-    return this->SendMessage( packet, buffer.size(), 0 );
+    this->SendMessage( packet, buffer.size(), 0 );
 }
 
 bool Client::SendMessage( Packet packet, uint32 size, int nSendFlags ) {
     msgpack::sbuffer buffer2;
     msgpack::pack( buffer2, packet );
 
-    return this->m_pInterface->SendMessageToConnection( this->m_hConnection, buffer2.data(), (uint32)buffer2.size(), nSendFlags, nullptr );
+    this->m_pInterface->SendMessageToConnection( this->m_hConnection, buffer2.data(), (uint32)buffer2.size(), nSendFlags, nullptr );
 }
