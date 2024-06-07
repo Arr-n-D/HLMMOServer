@@ -26,7 +26,7 @@ class Client {
    private:
     HSteamNetConnection m_hConnection;
     Player *m_pPlayer;
-    sdtd::string uuid;
+    std::string uuid;
     DiscordAuth *m_pDiscordAuth;
     ISteamNetworkingSockets *m_pInterface;
     bool SendMessage( Packet packet, uint32 size, int nSendFlags );
