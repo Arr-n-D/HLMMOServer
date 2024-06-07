@@ -4,4 +4,7 @@ build
 # Ignore the compile commands since they are machine specific
 .vscode/compile_commands.json
 
+# Ignore spdlog logs
+logs/
+
 .env
