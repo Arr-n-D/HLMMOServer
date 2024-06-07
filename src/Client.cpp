@@ -54,10 +54,10 @@ void Client::Authenticate() {
         buffer.size(),
         data };
 
-    this->SendMessage( packet, buffer.size(), 0 );
+    this->SendPacket( packet, buffer.size(), 0 );
 }
 
-bool Client::SendMessage( Packet packet, uint32 size, int nSendFlags ) {
+bool Client::SendPacket( Packet packet, uint32 size, int nSendFlags ) {
     msgpack::sbuffer buffer2;
     msgpack::pack( buffer2, packet );
 
