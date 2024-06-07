@@ -77,6 +77,8 @@
         "complex": "cpp",
         "iostream": "cpp",
         "unordered_set": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "any": "cpp",
+        "filesystem": "cpp"
     }
 }

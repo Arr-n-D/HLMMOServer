@@ -1,9 +1,11 @@
 #include "Networking/NetworkManager.hpp"
 
-#include <boost/thread.hpp>
+#include <thread>
 
 #include "Networking/network_types.hpp"
+#include "json.hpp"
 #include "spdlog/spdlog.h"
+using json = nlohmann::json;
 
 using namespace Networking;
 
@@ -87,36 +89,66 @@ void NetworkManager::InitializeAuthServer() {
         exit( 1 );
     }
 
-    if ( this->m_nAuthServerSocketClient = accept( server_socket, NULL, NULL ) == -1 ) {
+    this->m_nAuthServerSocketClient = accept( server_socket, NULL, NULL );
+    if ( this->m_nAuthServerSocketClient == -1 ) {
         spdlog::error( "Auth server socket failed to accept, exiting" );
         close( server_socket );
-        close( this->m_nAuthServerSocketClient );
         exit( 1 );
     }
 
     spdlog::info( "Auth server initialized\n" );
 
-    // create a thread with boost::thread
-    boost::thread t( &Networking::NetworkManager::PollIncomingAuthMessages, this );
+    // create a thread thread to poll incoming messages
+    std::thread authServerPollThread( &NetworkManager::PollIncomingAuthMessages, this );
+    authServerPollThread.join();
 }
-void Networking::NetworkManager::PollIncomingAuthMessages() {
+
+namespace test {
+struct loginMessage {
+    std::string id;
+    std::string username;
+    std::string email;
+};
+
+struct authServerMessage {
+    std::string type;
+    loginMessage data;
+};
+
+// NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE( authServerMessage, type, data )
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE( loginMessage, id, username, email )
+}  // namespace test
+
+void NetworkManager::PollIncomingAuthMessages() {
     spdlog::info( "Polling incoming messages from auth server" );
+    char buffer[1024];
+    memset( buffer, 0, sizeof( buffer ) );
+
     while ( !NetworkManager::g_bQuit ) {
-        char buffer[1024];
-        int n = recv( this->m_nAuthServerSocketClient, buffer, sizeof( buffer ), 0 );
-        if ( n < 0 ) {
-            spdlog::error( "Failed to receive message from auth server" );
-            break;
-        }
+        int receivedBytes = recv( this->m_nAuthServerSocketClient, buffer, sizeof( buffer ), 0 );
 
-        if ( n == 0 ) {
-            spdlog::info( "Auth server disconnected" );
-            break;
-        }
+        if ( receivedBytes == -1 ) {
+            spdlog::error( "Error receiving message from auth server: {}", strerror( errno ) );
+            std::this_thread::sleep_for( std::chrono::seconds( 5 ) );
+        } else if ( receivedBytes == 0 ) {
+            spdlog::warn( "Connection closed by auth server" );
+            break;  // Exit the loop if the connection is closed
+        } else {
 
-        spdlog::info( "Received message from auth server: {0}", buffer );
+            // we get a weird Unicode Character 'FORM FEED (FF)' (U+000C) at the end of the buffer, so we remove it
+            buffer[ receivedBytes -1 ] = '\0';
+            // Parse the message using json library
+            json p = json::parse( buffer );
+
+            test::loginMessage message = p["data"].get<test::loginMessage>();
+            // print value id of the message
+            spdlog::info( "Received message from auth server: {}", message.id );
+        }
     }
+
+    close( this->m_nAuthServerSocketClient );  // Clean up socket
 }
+
 void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback_t *pInfo ) {
     assert( m_mapClients.find( pInfo->m_hConn ) == m_mapClients.end() );
 
