@@ -26,7 +26,7 @@ class Client {
     ~Client();
 
     void Authenticate();
-    bool SendPacket( Packet packet, uint32 size, int nSendFlags );
+    bool SendMessage( Packet packet, uint32 size, int nSendFlags );
 
 #pragma region Getters + Setters
     std::string GetUuid();
