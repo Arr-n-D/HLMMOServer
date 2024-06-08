@@ -114,33 +114,34 @@ void NetworkManager::PollIncomingAuthMessages() {
 
         if ( receivedBytes == -1 ) {
             spdlog::error( "Error receiving message from auth server: {}", strerror( errno ) );
-            std::this_thread::sleep_for( std::chrono::seconds( 5 ) );
-        } else if ( receivedBytes == 0 ) {
-            spdlog::warn( "Connection closed by auth server" );
-            break;  // Exit the loop if the connection is closed
-        } else {
-            // @TODO #11 - Find out why this is happening we get a weird Unicode Character 'FORM FEED (FF)' (U+000C) at the end of the buffer
-            buffer[receivedBytes - 1] = '\0';
-            json p = json::parse( buffer );
-            LoginMessage message = p["data"].get<LoginMessage>();
+            std::this_thread::sleep_for( std::chrono::milliseconds( 1 ) );
 
-            bool clientFound = false;
-            // find client with state in m_vecClients
-            for ( auto &client : m_vecClients ) {
-                if ( client->GetUuid() != message.state ) {
-                    continue;
-                } else {
-                    clientFound = true;
-                    client.SetAuthenticated( true );
-                    break;
-                }
-            }
-
-            if ( !clientFound ) {
-                client.CloseConnection( 0, nullptr, false );
-                spdlog::warn( "Client not found with state {}", message.state );
-            }
+            continue;
         }
+
+        if ( receivedBytes == 0 ) {
+            spdlog::warn( "Connection closed by auth server" );
+
+            // Exit the loop if the connection is closed
+            break;
+        }
+
+        // @TODO #11 - Find out why this is happening we get a weird Unicode Character 'FORM FEED (FF)' (U+000C) at the end of the buffer
+        buffer[receivedBytes - 1] = '\0';
+        json p = json::parse( buffer );
+        LoginMessage message = p["data"].get<LoginMessage>();
+
+        Client *found_client = this->GetClientByUuid( message.state );
+
+        if ( found_client == nullptr ) {
+            spdlog::warn( "Client not found with state {}", message.state );
+            std::this_thread::sleep_for( std::chrono::milliseconds( 1 ) );
+
+            continue;
+        }
+
+        found_client->SetAuthenticated( true );
+        std::this_thread::sleep_for( std::chrono::milliseconds( 1 ) );
     }
 
     close( this->m_nAuthServerSocketClient );  // Clean up socket
@@ -150,12 +151,13 @@ void NetworkManager::OnClientConnecting( SteamNetConnectionStatusChangedCallback
     // assert( m_mapClients.find( pInfo->m_hConn ) == m_mapClients.end() );
     // assert (m_vecClients.find( pInfo->m_hConn ) == m_vecClients.end());
     // find client with pInfo->m_hConn in m_vecClients
-    for ( auto &client : m_vecClients ) {
-        if ( client->GetConnection() == pInfo->m_hConn ) {
-            spdlog::warn( "Client already exists with connection {}", pInfo->m_hConn );
 
-            return;
-        }
+    Client *existingClient = this->GetClientByConnectionHandle( pInfo->m_hConn );
+
+    if ( existingClient != nullptr ) {
+        spdlog::warn( "Client already exists with connection {}", pInfo->m_hConn );
+
+        return;
     }
 
     spdlog::info( "Connection request from {}", pInfo->m_info.m_szConnectionDescription );
@@ -198,8 +200,23 @@ void NetworkManager::OnClientDisconnect( SteamNetConnectionStatusChangedCallback
                 // and connection change callbacks are dispatched in queue order.
                 // client->getstate
 
-                auto itClient = m_mapClients.find( pInfo->m_hConn );
-                assert( itClient != m_mapClients.end() );
+                Client *client = this->GetClientByConnectionHandle( pInfo->m_hConn );
+
+                std::vector<Client *>::iterator foundClient = this->m_vecClients.begin();
+
+                for ( ; foundClient != this->m_vecClients.end(); foundClient++ ) {
+                    if ( ( *foundClient.base() )->GetConnection() != pInfo->m_hConn ) {
+                        continue;
+                    }
+
+                    break;
+                }
+
+                if ( foundClient == this->m_vecClients.end() ) {
+                    spdlog::warn( "Could not find client with handle {}", pInfo->m_hConn );
+
+                    return;
+                }
 
                 // Select appropriate log messages
                 const char *pszDebugLogAction;
@@ -222,7 +239,7 @@ void NetworkManager::OnClientDisconnect( SteamNetConnectionStatusChangedCallback
                                pInfo->m_info.m_eEndReason,
                                pInfo->m_info.m_szEndDebug );
 
-                m_mapClients.erase( itClient );
+                this->m_vecClients.erase( foundClient );
 
                 // Send a message so everybody else knows what happened
                 // SendStringToAllClients(temp);
