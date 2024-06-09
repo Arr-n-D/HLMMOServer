@@ -31,8 +31,8 @@ class NetworkManager {
 
     // std::map<HSteamNetConnection, Client *> m_mapClients;
     std::vector<Client *> m_vecClients;
-    bool SendPacketToPlayer( HSteamNetConnection hConn, Packet packet, uint32 size, int nSendFlags );
-    bool SendPacketToAllPlayers( Packet packet, uint32 size, int nSendFlags );
+    bool SendMessageToPlayer( HSteamNetConnection hConn, Packet packet, uint32 size, int nSendFlags );
+    bool SendMessageToAllPlayers( Packet packet, uint32 size, int nSendFlags );
 
     Client *GetClientByUuid( std::string uuidToFind );
     Client *GetClientByConnectionHandle( HSteamNetConnection connectionHandle );
@@ -74,9 +74,11 @@ class NetworkManager {
     static bool g_bQuit;
     static SteamNetworkingMicroseconds g_logTimeZero;
     int m_nAuthServerSocketClient;
+    int m_nAuthServerSocket;
     void InitializeAuthServer();
     void PollIncomingAuthMessages();
     void PollIncomingMessages();
+    void AcceptAuthServerConnection( );
 
 #pragma region Event Callbacks
     void OnClientConnecting( SteamNetConnectionStatusChangedCallback_t *pInfo );

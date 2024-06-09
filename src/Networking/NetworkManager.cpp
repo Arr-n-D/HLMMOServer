@@ -66,7 +66,7 @@ void NetworkManager::InitializeAuthServer() {
 
     memset( &server_addr, 0, sizeof( server_addr ) );
 
-    if ( ( server_socket = socket( AF_UNIX, SOCK_STREAM, 0 ) ) == -1 ) {
+    if ( ( this->m_nAuthServerSocket = socket( AF_UNIX, SOCK_STREAM, 0 ) ) == -1 ) {
         spdlog::error( "Auth server socket failed to initialize, exiting" );
         exit( 1 );
     }
@@ -78,30 +78,34 @@ void NetworkManager::InitializeAuthServer() {
     // unlink the file before bind, unless it can't bind
     unlink( socket_path );
 
-    if ( bind( server_socket, (struct sockaddr *)&server_addr, len ) == -1 ) {
+    if ( bind( this->m_nAuthServerSocket, (struct sockaddr *)&server_addr, len ) == -1 ) {
         spdlog::error( "Auth server socket failed to bind, exiting" );
         close( server_socket );
         exit( 1 );
     }
 
-    if ( listen( server_socket, 1 ) == -1 ) {
+    if ( listen( this->m_nAuthServerSocket, 1 ) == -1 ) {
         spdlog::error( "Auth server socket failed to listen, exiting" );
-        close( server_socket );
+        close( this->m_nAuthServerSocket );
         exit( 1 );
     }
 
-    this->m_nAuthServerSocketClient = accept( server_socket, NULL, NULL );
-    if ( this->m_nAuthServerSocketClient == -1 ) {
-        spdlog::error( "Auth server socket failed to accept, exiting" );
-        close( server_socket );
-        exit( 1 );
-    }
-
-    spdlog::info( "Auth server initialized" );
+    this->AcceptAuthServerConnection();
 
     // create a thread thread to poll incoming messages
     std::thread authServerPollThread( &NetworkManager::PollIncomingAuthMessages, this );
     authServerPollThread.detach();
+}
+
+void NetworkManager::AcceptAuthServerConnection() {
+    this->m_nAuthServerSocketClient = accept( this->m_nAuthServerSocket, NULL, NULL );
+    if ( this->m_nAuthServerSocketClient == -1 ) {
+        spdlog::error( "Auth server socket failed to accept, exiting" );
+        close( this->m_nAuthServerSocket );
+        exit( 1 );
+    }
+
+    spdlog::info( "Auth server initialized" );
 }
 
 void NetworkManager::PollIncomingAuthMessages() {
@@ -109,7 +113,7 @@ void NetworkManager::PollIncomingAuthMessages() {
     char buffer[1024];
     memset( buffer, 0, sizeof( buffer ) );
 
-    while ( !NetworkManager::g_bQuit ) {
+    while ( !NetworkManager::g_bQuit && this->m_nAuthServerSocketClient ) {
         int receivedBytes = recv( this->m_nAuthServerSocketClient, buffer, sizeof( buffer ), 0 );
 
         if ( receivedBytes == -1 ) {
@@ -120,9 +124,8 @@ void NetworkManager::PollIncomingAuthMessages() {
         }
 
         if ( receivedBytes == 0 ) {
-            spdlog::warn( "Connection closed by auth server" );
-
-            // Exit the loop if the connection is closed
+            this->AcceptAuthServerConnection();
+            spdlog::warn( "Connection closed by auth server, retrying" );
             break;
         }
 
@@ -287,19 +290,19 @@ void NetworkManager::PollConnectionStateChanges() {
     m_pInterface->RunCallbacks();
 }
 
-bool NetworkManager::SendPacketToPlayer( HSteamNetConnection hConn, Packet packet, uint32 size, int nSendFlags ) {
+bool NetworkManager::SendMessageToPlayer( HSteamNetConnection hConn, Packet packet, uint32 size, int nSendFlags ) {
     for ( auto &client : this->m_vecClients ) {
         if ( client->GetConnection() != hConn ) {
             continue;
         }
 
-        client->SendPacket( packet, size, nSendFlags );
+        client->SendMessage( packet, size, nSendFlags );
     }
 }
 
-bool NetworkManager::SendPacketToAllPlayers( Packet packet, uint32 size, int nSendFlags ) {
+bool NetworkManager::SendMessageToAllPlayers( Packet packet, uint32 size, int nSendFlags ) {
     for ( auto &client : this->m_vecClients ) {
-        client->SendPacket( packet, size, nSendFlags );
+        client->SendMessage( packet, size, nSendFlags );
     }
 }
 
