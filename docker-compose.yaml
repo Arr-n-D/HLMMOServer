@@ -10,3 +10,12 @@ services:
       - ./.env
     volumes:
       - ./logs/:/app/logs/
+      - /tmp:/tmp/
+  auth-server:
+    ports:
+      - "3000:3000"
+    image: hlmmo/auth-server:latest
+    depends_on:
+      - server
+    volumes:
+      - /tmp:/tmp/

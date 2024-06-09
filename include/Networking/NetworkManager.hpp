@@ -2,9 +2,12 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <steam/isteamnetworkingutils.h>
 #include <steam/steamnetworkingsockets.h>
-#include <string.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
 
 #include <chrono>
 #include <map>
@@ -12,19 +15,27 @@
 #include <thread>
 
 #include "Client.hpp"
+#include "Networking/network_types.hpp"
 
 class DiscordAuth;
 
 namespace Networking {
 class NetworkManager {
    public:
-    NetworkManager(DiscordAuth *pDiscordAuth);
+    NetworkManager( DiscordAuth *pDiscordAuth );
     ~NetworkManager();
 
     void Init();
+    void Shutdown();
     void StartServer();
 
-    std::map<HSteamNetConnection, Client *> m_mapClients;
+    // std::map<HSteamNetConnection, Client *> m_mapClients;
+    std::vector<Client *> m_vecClients;
+    bool SendMessageToPlayer( HSteamNetConnection hConn, Packet packet, uint32 size, int nSendFlags );
+    bool SendMessageToAllPlayers( Packet packet, uint32 size, int nSendFlags );
+
+    Client *GetClientByUuid( std::string uuidToFind );
+    Client *GetClientByConnectionHandle( HSteamNetConnection connectionHandle );
 
 #pragma region StaticRegion
     static void DebugOutput( ESteamNetworkingSocketsDebugOutputType eType, const char *pszMsg ) {
@@ -62,9 +73,12 @@ class NetworkManager {
     static NetworkManager *s_pCallbackInstance;  // Used for OnSteamNetConnectionStatusChanged since we cannot cast a member function to a void pointer
     static bool g_bQuit;
     static SteamNetworkingMicroseconds g_logTimeZero;
-
+    int m_nAuthServerSocketClient;
+    int m_nAuthServerSocket;
+    void InitializeAuthServer();
+    void PollIncomingAuthMessages();
     void PollIncomingMessages();
-
+    void AcceptAuthServerConnection( );
 
 #pragma region Event Callbacks
     void OnClientConnecting( SteamNetConnectionStatusChangedCallback_t *pInfo );
